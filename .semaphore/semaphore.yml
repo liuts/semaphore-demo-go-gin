@@ -5,47 +5,16 @@ agent:
     type: e1-standard-2
     os_image: ubuntu2004
 blocks:
-  - name: Install dependencies
+  - name: Test
     task:
       jobs:
-        - name: Install
+        - name: go test
           commands:
-            - sem-version go 1.18
+            - sem-version go 1.11
             - export GO111MODULE=on
             - export GOPATH=~/go
             - 'export PATH=/home/semaphore/go/bin:$PATH'
             - checkout
-            - cache restore
-            - go mod vendor
-            - cache store
-  - name: Tests
-    task:
-      prologue:
-        commands:
-          - sem-version go 1.18
-          - export GO111MODULE=on
-          - export GOPATH=~/go
-          - 'export PATH=/home/semaphore/go/bin:$PATH'
-          - checkout
-          - cache restore
-          - go mod vendor
-      jobs:
-        - name: Unit tests
-          commands:
+            - go get ./...
             - go test ./...
-  - name: Build
-    task:
-      prologue:
-        commands:
-          - sem-version go 1.18
-          - export GO111MODULE=on
-          - export GOPATH=~/go
-          - 'export PATH=/home/semaphore/go/bin:$PATH'
-          - checkout
-          - cache restore
-          - go mod vendor
-      jobs:
-        - name: Build
-          commands:
-            - go build -v -o go-gin-app
-            - artifact push project --force go-gin-app
+            - go build -v .
